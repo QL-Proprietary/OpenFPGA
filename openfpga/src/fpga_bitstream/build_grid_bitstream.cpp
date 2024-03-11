@@ -230,11 +230,33 @@ static void build_physical_block_pin_interc_bitstream(
       const PhysicalPbId& des_pb_id =
         physical_pb.find_pb(des_pb_graph_pin->parent_node);
       size_t mux_input_pin_id = 0;
-      if (true != physical_pb.valid_pb_id(des_pb_id)) {
+      if (true != physical_pb.valid_pb_id(des_pb_id)) { /* Unmapped pb */
         mux_input_pin_id = DEFAULT_PATH_ID;
-      } else if (AtomNetId::INVALID() == physical_pb.pb_graph_pin_atom_net(
+      } else if (AtomNetId::INVALID() == physical_pb.pb_graph_pin_atom_net( /* Unmapped output */
                                            des_pb_id, des_pb_graph_pin)) {
-        mux_input_pin_id = DEFAULT_PATH_ID;
+        if(false == circuit_lib.mux_add_const_input(mux_model)){ /* No constant input, select the last unmapped input */
+          auto pin_inputs = pb_graph_pin_inputs(des_pb_graph_pin, cur_interc);
+          int pin_id;
+          for (pin_id = pin_inputs.size() - 1; pin_id >= 0; --pin_id) {
+            auto src_pb_graph_pin = pin_inputs[pin_id];
+            const PhysicalPbId& src_pb_id = physical_pb.find_pb(src_pb_graph_pin->parent_node);
+            if (!physical_pb.valid_pb_id(src_pb_id)) {
+              mux_input_pin_id = pin_id;
+              break;
+            }
+          }
+          /* Couldn't find an unmapped input, use default path ID */
+          if (pin_id == -1){
+            VTR_LOG_WARN("At PhysicalPbId=%d: output is unmapped but all inputs are mapped?", des_pb_id);
+            mux_input_pin_id = DEFAULT_PATH_ID;
+          }
+          /* or the last input was already unmapped, use default path ID */
+          if(mux_input_pin_id == pin_inputs.size() - 1) {
+            mux_input_pin_id = DEFAULT_PATH_ID;
+          }
+        } else {
+          mux_input_pin_id = DEFAULT_PATH_ID; /* We have constant input, use the default path ID */
+        }
       } else {
         output_net =
           physical_pb.pb_graph_pin_atom_net(des_pb_id, des_pb_graph_pin);
