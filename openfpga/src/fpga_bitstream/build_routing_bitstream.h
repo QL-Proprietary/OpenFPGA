@@ -35,8 +35,8 @@ void build_routing_bitstream(
   const MuxLibrary& mux_lib, const AtomContext& atom_ctx,
   const VprDeviceAnnotation& device_annotation,
   const VprRoutingAnnotation& routing_annotation, const RRGraphView& rr_graph,
-  const DeviceRRGSB& device_rr_gsb, const bool& compact_routing_hierarchy,
-  const bool& verbose);
+  const DeviceRRGSB& device_rr_gsb, bool compact_routing_hierarchy,
+  bool verbose, bool fix_unmapped_mux_selection);
 
 } /* end namespace openfpga */
 
