@@ -338,7 +338,7 @@ static void build_connection_block_mux_bitstream(
     }
     /* Warn if all inputs are mapped */
     if(path_id == -1){
-      VTR_LOG_WARN("At RRNodeId = %d: output is unmapped but all inputs are mapped?", src_rr_node);
+      VTR_LOG_ERROR("At RRNodeId = %d: output is unmapped but all inputs are mapped?", src_rr_node);
     }
     /* If the last input was already unmapped, set path id to default (for compatibility purposes) */
     if((size_t)path_id == driver_rr_edges.size() - 1){
