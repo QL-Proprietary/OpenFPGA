@@ -33,6 +33,7 @@ namespace openfpga {
 template <class T>
 int fpga_bitstream_template(T& openfpga_ctx, const Command& cmd,
                             const CommandContext& cmd_context) {
+  CommandOptionId opt_fix_unmapped = cmd.option("fix_unmapped_mux_selection");
   CommandOptionId opt_verbose = cmd.option("verbose");
   CommandOptionId opt_no_time_stamp = cmd.option("no_time_stamp");
   CommandOptionId opt_write_file = cmd.option("write_file");
@@ -43,7 +44,11 @@ int fpga_bitstream_template(T& openfpga_ctx, const Command& cmd,
       cmd_context.option_value(cmd, opt_read_file).c_str());
   } else {
     openfpga_ctx.mutable_bitstream_manager() = build_device_bitstream(
-      g_vpr_ctx, openfpga_ctx, cmd_context.option_enable(cmd, opt_verbose));
+      g_vpr_ctx,
+      openfpga_ctx,
+      cmd_context.option_enable(cmd, opt_verbose),
+      cmd_context.option_enable(cmd, opt_fix_unmapped)
+    );
   }
 
   if (true == cmd_context.option_enable(cmd, opt_write_file)) {
